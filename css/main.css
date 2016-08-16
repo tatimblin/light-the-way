@@ -1,0 +1,10 @@
+body{
+    background:#6E462C;
+    padding:0;
+    margin:0;
+}
+
+#phaser-canvas{
+    margin:auto;
+    max-width:720px;
+}
