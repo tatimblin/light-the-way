@@ -7,9 +7,14 @@ gameObj.Game = function(game) {
     
     var myPoints;
     var currentScore;
+    
+    var torch;
+    var character;
+    var mask;
 };
 
 gameObj.Game.prototype = {
+    
 	create: function() {
 		console.log("State - Game");
 		//Add background image
@@ -42,9 +47,34 @@ gameObj.Game.prototype = {
         var cell = this.add.sprite(300, 700, 'wall');
         
         //Player
-        var cell = this.add.sprite(300, 610, 'gameCharacter');
+        character = this.add.sprite(300, 610, 'gameCharacter');
+        this.physics.enable(character, Phaser.Physics.ARCADE);
+        character.anchor.setTo(0.5);
+    
         var cell = this.add.sprite(500, 410, 'gameSnake');
-        var cell = this.add.sprite(400, 410, 'gameTorch');
+        torch = this.add.sprite(400, 410, 'gameTorch');
+    
+        
+        //  Mask
+        //	Here we add a Sprite to the display list
+        torch = this.add.sprite(0, 0, 'bg');
+        torch.scale.set(2);
+
+        //	A mask is a Graphics object
+        mask = this.add.graphics(0, 0);
+
+        //	Shapes drawn to the Graphics object must be filled.
+        mask.beginFill(0xffffff);
+
+        //	Here we'll draw a circle
+        mask.drawCircle(100, 100, 100);
+
+        //	And apply it to the Sprite
+        torch.mask = mask;
+
+        //	As you move the mouse / touch, the circle will track the sprite
+        this.input.addMoveCallback(move, this);
+
 
 		//Add text
 		var points = "0";
@@ -83,6 +113,34 @@ gameObj.Game.prototype = {
         // Start the timer
         timerObj.start();
 	},
+    update: function() {
+
+    //  only move when you click
+    if (this.input.mousePointer.isDown)
+    {
+        //  if it's overlapping the mouse, don't move any more
+        if (Phaser.Rectangle.contains(character.body, this.input.x, this.input.y))
+        {
+            character.body.velocity.setTo(0, 0);
+        }
+        else 
+        {
+            //  400 is the speed it will move towards the mouse
+            this.physics.arcade.moveToPointer(character, 250);
+        }
+    }
+    else
+    {
+        character.body.velocity.setTo(0, 0);
+    }
+
+},
+    function move(pointer, x, y) {
+
+	   mask.x = x - 100;
+	   mask.y = y - 100;
+
+    },
     updateTimer: function() {
         //console.log("Timer Running");
         timerSeconds ++;
@@ -113,5 +171,10 @@ gameObj.Game.prototype = {
 	},
 	loserFun: function() {
 		this.game.state.start('Loser');
-	}
+	},
+    
+
 };
+
+
+
