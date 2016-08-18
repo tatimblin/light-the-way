@@ -5,6 +5,8 @@ gameObj.Game = function(game) {
     var timerSeconds;
     var secondsLeft; // Total game seconds - Current timer seconds
     
+    var myPoints;
+    var currentScore;
 };
 
 gameObj.Game.prototype = {
@@ -42,10 +44,11 @@ gameObj.Game.prototype = {
         //Player
         var cell = this.add.sprite(300, 610, 'gameCharacter');
         var cell = this.add.sprite(500, 410, 'gameSnake');
+        var cell = this.add.sprite(400, 410, 'gameTorch');
 
 		//Add text
-		var points = gameObj.finalScore;
-		var time = "1:10";
+		var points = "0";
+		var time = "2:00";
 
 		var myStyle = {
 			width: "150px",
@@ -54,8 +57,8 @@ gameObj.Game.prototype = {
 			align: "left"
 		};
 
-		var myPoints = this.add.text(85, 59, points, myStyle);
-        myTime = this.add.text(this.world.width - 165, 59, time, myStyle);
+		myPoints = this.add.text(this.world.width - 165, 59, points, myStyle);
+        myTime = this.add.text(85, 59, time, myStyle);
 		
 		// Add button
 		// The numbers given in parameters are the indexes of the frames, in this order: over, out, down
@@ -65,7 +68,12 @@ gameObj.Game.prototype = {
 		tmpLoserBtn = this.add.button(200, 200, 'btn_loser', this.loserFun, this, 1, 0, 2);
 		tmpLoserBtn.anchor.setTo(0.5, 0.5);
         
-        gameSeconds = 70;
+        tmpPointBtn = this.add.button(300, 200, 'btn_point', this.addPoint, this, 1, 0, 2);
+		tmpPointBtn.anchor.setTo(0.5, 0.5);
+        
+        currentScore = 0;
+        
+        gameSeconds = 120;
         timerSeconds = 0;
         secondsLeft = 0;
         // Create Timer Object
@@ -94,6 +102,11 @@ gameObj.Game.prototype = {
         if (displayMin == 0 && displaySec ==0) {
             this.game.state.start('Loser');
         }
+    },
+    addPoint: function() {
+        console.log(currentScore);
+        currentScore++
+        myPoints.setText(currentScore);
     },
 	winnerFun: function() {
 		this.game.state.start('Winner');

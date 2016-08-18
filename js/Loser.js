@@ -29,13 +29,13 @@ gameObj.Loser.prototype = {
 		close.anchor.setTo(1, 0.5);
 
 		//Add text
-		var scoreText = gameObj.finalScore;
-        var timeText = "0:35";
+		var scoreText = currentScore;
+        var timeText = displayMin + ":" + displaySec;
 
 		var myStyle = { width: "150px", font: "50px Freckle Face", fill: "black", align: "left"};
 
-		var myScore = this.add.text(this.world.centerX+60,this.world.centerY-25, scoreText, myStyle );
-        var myTime = this.add.text(this.world.centerX-160,this.world.centerY-25, timeText, myStyle );
+		var myScore = this.add.text(this.world.centerX+70,this.world.centerY-25, scoreText, myStyle );
+        var myTime = this.add.text(this.world.centerX-180,this.world.centerY-25, timeText, myStyle );
 		           
 		
 	},

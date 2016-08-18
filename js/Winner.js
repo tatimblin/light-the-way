@@ -29,8 +29,8 @@ gameObj.Winner.prototype = {
 		close.anchor.setTo(1, 0.5);
 
 		//Add text
-		var scoreText = gameObj.finalScore;
-        var timeText = "0:35";
+		var scoreText = currentScore;
+        var timeText = displayMin + ":" + displaySec;
 
 		var myStyle = { width: "150px", font: "50px Freckle Face", fill: "black", align: "left"};
 

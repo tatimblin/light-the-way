@@ -17,6 +17,7 @@ gameObj.Preloader.prototype = {
         //TEMPORARY
         this.load.spritesheet('btn_winner', 'imgs/btn_winner.png', 90, 90);
         this.load.spritesheet('btn_loser', 'imgs/btn_loser.png', 90, 90);
+        this.load.spritesheet('btn_point', 'imgs/btn_point.png', 90, 90);
         
         // Main Screen Assets
         this.load.image('logo', 'imgs/logo.png');
@@ -36,6 +37,7 @@ gameObj.Preloader.prototype = {
         
         this.load.image('gameCharacter', 'imgs/gameCharacter.png');
         this.load.image('gameSnake', 'imgs/gameSnake.png');
+        this.load.image('gameTorch', 'imgs/gameTorch.png');
         
         // End Game Assets
         this.load.image('winBg', 'imgs/winBg.png');

@@ -1,6 +1,6 @@
 var gameObj = {
 	// Global variables are decleared here!
-	finalScore: 3770,
+	finalScore: "0",
 	finalTime: "00:00"
 };
 
