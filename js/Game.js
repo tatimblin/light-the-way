@@ -11,6 +11,7 @@ gameObj.Game = function(game) {
     var torch;
     var character;
     var mask;
+    var move;
 };
 
 gameObj.Game.prototype = {
@@ -53,27 +54,11 @@ gameObj.Game.prototype = {
     
         var cell = this.add.sprite(500, 410, 'gameSnake');
         torch = this.add.sprite(400, 410, 'gameTorch');
+        this.physics.enable(torch, Phaser.Physics.ARCADE);
+        torch.anchor.setTo(0.5);
     
         
-        //  Mask
-        //	Here we add a Sprite to the display list
-        torch = this.add.sprite(0, 0, 'bg');
-        torch.scale.set(2);
 
-        //	A mask is a Graphics object
-        mask = this.add.graphics(0, 0);
-
-        //	Shapes drawn to the Graphics object must be filled.
-        mask.beginFill(0xffffff);
-
-        //	Here we'll draw a circle
-        mask.drawCircle(100, 100, 100);
-
-        //	And apply it to the Sprite
-        torch.mask = mask;
-
-        //	As you move the mouse / touch, the circle will track the sprite
-        this.input.addMoveCallback(move, this);
 
 
 		//Add text
@@ -115,7 +100,20 @@ gameObj.Game.prototype = {
 	},
     update: function() {
 
-    //  only move when you click
+    // Hide cursor only on this screen (flame is cursor)
+    this.game.canvas.style.cursor = "none";
+    
+    // Move torch quickly to mouse position
+    if (Phaser.Rectangle.contains(torch.body, this.input.x, this.input.y))
+    {
+        torch.body.velocity.setTo(0, 0);
+    }
+    else 
+    {
+        this.physics.arcade.moveToPointer(torch, 1200);
+    }    
+        
+    //  Move character slowly to mouse position only on mousedown
     if (this.input.mousePointer.isDown)
     {
         //  if it's overlapping the mouse, don't move any more
@@ -126,7 +124,7 @@ gameObj.Game.prototype = {
         else 
         {
             //  400 is the speed it will move towards the mouse
-            this.physics.arcade.moveToPointer(character, 250);
+            this.physics.arcade.moveToPointer(character, 200);
         }
     }
     else
@@ -135,12 +133,6 @@ gameObj.Game.prototype = {
     }
 
 },
-    function move(pointer, x, y) {
-
-	   mask.x = x - 100;
-	   mask.y = y - 100;
-
-    },
     updateTimer: function() {
         //console.log("Timer Running");
         timerSeconds ++;
