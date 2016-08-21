@@ -15,9 +15,10 @@ gameObj.Preloader.prototype = {
 		// Load ALL GAME images into memory
         
         //TEMPORARY
-        this.load.spritesheet('btn_winner', 'imgs/btn_winner.png', 90, 90);
-        this.load.spritesheet('btn_loser', 'imgs/btn_loser.png', 90, 90);
-        this.load.spritesheet('btn_point', 'imgs/btn_point.png', 90, 90);
+        this.load.image('btn_bg', 'imgs/temp-btn_bg.png');
+        this.load.spritesheet('btn_winner', 'imgs/temp-btn-win.png', 70, 30);
+        this.load.spritesheet('btn_loser', 'imgs/temp-btn-lose.png', 70, 30);
+        this.load.spritesheet('btn_point', 'imgs/temp-btn-point.png', 70, 30);
         
         // Main Screen Assets
         this.load.image('logo', 'imgs/logo.png');

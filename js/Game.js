@@ -12,6 +12,9 @@ gameObj.Game = function(game) {
     var character;
     var mask;
     var move;
+    var cell;
+    var cells;
+
 };
 
 gameObj.Game.prototype = {
@@ -23,36 +26,59 @@ gameObj.Game.prototype = {
 //		myLogo.anchor.setTo(0.5, 0.5);
 
 		//Add list graphics
-		var cell = this.add.sprite(0, 0, 'bg');
+		var background = this.add.sprite(0, 0, 'bg');
         
-		var cell = this.add.sprite(-100, 0, 'sideWall');
-        var cell = this.add.sprite(680, 0, 'sideWall');
+        cell = this.add.sprite(-110, 0, 'sideWall');
+        cell = this.add.sprite(690, 0, 'sideWall');
         
 		var leftWall = this.add.sprite(40, 29, 'time');
 		var rightWall = this.add.sprite(this.world.width - 175, 35, 'score');
 
-
-		var cell = this.add.sprite(300, 100, 'wall');
-		var cell = this.add.sprite(400, 100, 'wall');
-		var cell = this.add.sprite(100, 200, 'wall');
-        var cell = this.add.sprite(200, 200, 'wall');
-        var cell = this.add.sprite(300, 200, 'wall');
-        var cell = this.add.sprite(300, 300, 'wall');
         
-        var cell = this.add.sprite(300, 500, 'wall');
-        var cell = this.add.sprite(400, 500, 'wall');
-        var cell = this.add.sprite(500, 500, 'wall');
+		/*cell = this.add.sprite(300, 100, 'wall');
+        cell = this.add.sprite(400, 100, 'wall');
+		cell = this.add.sprite(100, 200, 'wall');
+        cell = this.add.sprite(200, 200, 'wall');
+        cell = this.add.sprite(300, 200, 'wall');
+        cell = this.add.sprite(300, 300, 'wall');
         
-        var cell = this.add.sprite(100, 600, 'wall');
-        var cell = this.add.sprite(200, 700, 'wall');
-        var cell = this.add.sprite(300, 700, 'wall');
+        cell = this.add.sprite(300, 500, 'wall');
+        cell = this.add.sprite(400, 500, 'wall');
+        cell = this.add.sprite(500, 500, 'wall');
+        
+        cell = this.add.sprite(100, 600, 'wall');
+        cell = this.add.sprite(200, 700, 'wall');
+        cell = this.add.sprite(300, 700, 'wall');*/
+        
+    cells = this.add.group();
+    cells.enableBody = true;
+    cells.physicsBodyType = Phaser.Physics.ARCADE;
+    
+    
+        // Holds wall coordinates (x 100)
+        var placex = [3, 4, 1, 2, 3, 3, 3, 4, 5, 1, 2, 3];
+        var placey = [1, 1, 2, 2, 2, 3, 5, 5, 5, 6, 7, 7];
+        
+        for (var i = 0; i < 12; i++) {
+            cell = cells.create(placex[i] * 100, placey[i] * 100, 'wall');
+            cell.name = 'cell' + i;
+            cell.body.immovable = true;
+            
+            /*vCount.name = 'wall';
+            this.physics.enable(vCount, Phaser.Physics.ARCADE);
+            vCount.body.collideWorldBounds = true;
+            vCount.body.immovable = true;*/
+            console.log("what is" + cell.name);
+        }
+        
         
         //Player
+        snake = this.add.sprite(500, 410, 'gameSnake');
+        
         character = this.add.sprite(300, 610, 'gameCharacter');
-        this.physics.enable(character, Phaser.Physics.ARCADE);
+        this.physics.enable([character, cell], Phaser.Physics.ARCADE);
         character.anchor.setTo(0.5);
-    
-        var cell = this.add.sprite(500, 410, 'gameSnake');
+        
         torch = this.add.sprite(400, 410, 'gameTorch');
         this.physics.enable(torch, Phaser.Physics.ARCADE);
         torch.anchor.setTo(0.5);
@@ -77,14 +103,17 @@ gameObj.Game.prototype = {
 		
 		// Add button
 		// The numbers given in parameters are the indexes of the frames, in this order: over, out, down
-		tmpWinnerBtn = this.add.button(100, 200, 'btn_winner', this.winnerFun, this, 1, 0, 2);
-		tmpWinnerBtn.anchor.setTo(0.5, 0.5);
+        tmpButtonBg = this.add.sprite(this.world.centerX, 0, 'btn_bg');
+        tmpButtonBg.anchor.setTo(0.5, 0);
+        
+		tmpWinnerBtn = this.add.button(this.world.centerX - 60, 20, 'btn_winner', this.winnerFun, this, 1, 0, 2);
+		tmpWinnerBtn.anchor.setTo(1, 0.5);
 		
-		tmpLoserBtn = this.add.button(200, 200, 'btn_loser', this.loserFun, this, 1, 0, 2);
+		tmpLoserBtn = this.add.button(this.world.centerX, 20, 'btn_loser', this.loserFun, this, 1, 0, 2);
 		tmpLoserBtn.anchor.setTo(0.5, 0.5);
         
-        tmpPointBtn = this.add.button(300, 200, 'btn_point', this.addPoint, this, 1, 0, 2);
-		tmpPointBtn.anchor.setTo(0.5, 0.5);
+        tmpPointBtn = this.add.button(this.world.centerX + 60, 20, 'btn_point', this.addPoint, this, 1, 0, 2);
+		tmpPointBtn.anchor.setTo(0, 0.5);
         
         currentScore = 0;
         
@@ -98,10 +127,13 @@ gameObj.Game.prototype = {
         // Start the timer
         timerObj.start();
 	},
-    update: function() {
-
+    update: function() {    
+    
     // Hide cursor only on this screen (flame is cursor)
     this.game.canvas.style.cursor = "none";
+        
+    this.physics.arcade.collide(cells, character);
+    cells.imovable = true;
     
     // Move torch quickly to mouse position
     if (Phaser.Rectangle.contains(torch.body, this.input.x, this.input.y))
@@ -110,7 +142,7 @@ gameObj.Game.prototype = {
     }
     else 
     {
-        this.physics.arcade.moveToPointer(torch, 1200);
+        this.physics.arcade.moveToPointer(torch, 1000);
     }    
         
     //  Move character slowly to mouse position only on mousedown
@@ -125,13 +157,14 @@ gameObj.Game.prototype = {
         {
             //  400 is the speed it will move towards the mouse
             this.physics.arcade.moveToPointer(character, 200);
+            character.rotation = this.physics.arcade.angleToPointer(character);
         }
     }
     else
     {
         character.body.velocity.setTo(0, 0);
     }
-
+        
 },
     updateTimer: function() {
         //console.log("Timer Running");
