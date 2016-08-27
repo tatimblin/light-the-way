@@ -30,9 +30,6 @@ gameObj.Game.prototype = {
         
         cell = this.add.sprite(-110, 0, 'sideWall');
         cell = this.add.sprite(690, 0, 'sideWall');
-        
-		var leftWall = this.add.sprite(40, 29, 'time');
-		var rightWall = this.add.sprite(this.world.width - 175, 35, 'score');
 
         
 		/*cell = this.add.sprite(300, 100, 'wall');
@@ -79,13 +76,27 @@ gameObj.Game.prototype = {
         this.physics.enable([character, cell], Phaser.Physics.ARCADE);
         character.anchor.setTo(0.5);
         
-        torch = this.add.sprite(400, 410, 'gameTorch');
+        /*torch = this.add.sprite(400, 410, 'gameTorch');
         this.physics.enable(torch, Phaser.Physics.ARCADE);
-        torch.anchor.setTo(0.5);
+        torch.anchor.setTo(0.5);*/
     
         
+        // The radius of the circle of light
+        this.LIGHT_RADIUS = 100;
+        
+        this.shadowTexture = this.game.add.bitmapData(this.game.world.width, this.game.world.height);    // Create an object that will use the bitmap as a texture
+        this.lightSprite = this.game.add.image(0, 0, this.shadowTexture);    // Set the blend mode to MULTIPLY. This will darken the colors of    // everything below this sprite.    
+        this.lightSprite.blendMode = Phaser.blendModes.MULTIPLY;
+        
+        // Simulate a pointer click/tap input at the center of the stage
+        // when the example begins running.
+        this.game.input.activePointer.x = this.game.width/2;
+        this.game.input.activePointer.y = this.game.height/2;
+        
 
-
+        var leftWall = this.add.sprite(40, 29, 'time');
+		var rightWall = this.add.sprite(this.world.width - 175, 35, 'score');
+        
 
 		//Add text
 		var points = "0";
@@ -126,16 +137,19 @@ gameObj.Game.prototype = {
         timerObj.loop(1000, this.updateTimer, this);
         // Start the timer
         timerObj.start();
+        
+
 	},
     update: function() {    
     
     // Hide cursor only on this screen (flame is cursor)
-    this.game.canvas.style.cursor = "none";
+//    this.game.canvas.style.cursor = "none";
         
     this.physics.arcade.collide(cells, character);
     cells.imovable = true;
     
-    // Move torch quickly to mouse position
+    /*
+    Move torch quickly to mouse position
     if (Phaser.Rectangle.contains(torch.body, this.input.x, this.input.y))
     {
         torch.body.velocity.setTo(0, 0);
@@ -143,7 +157,8 @@ gameObj.Game.prototype = {
     else 
     {
         this.physics.arcade.moveToPointer(torch, 1000);
-    }    
+    }   
+    */
         
     //  Move character slowly to mouse position only on mousedown
     if (this.input.mousePointer.isDown)
@@ -165,6 +180,23 @@ gameObj.Game.prototype = {
         character.body.velocity.setTo(0, 0);
     }
         
+    this.updateShadowTexture();
+        
+},
+    updateShadowTexture: function() {
+        // Draw shadow
+        this.shadowTexture.context.fillStyle = 'rgb(30, 30, 30)';
+        this.shadowTexture.context.fillRect(0, 0, this.game.width, this.game.height);
+
+        // Draw circle of light
+        this.shadowTexture.context.beginPath();
+        this.shadowTexture.context.fillStyle = 'rgb(170, 170, 170)';
+        this.shadowTexture.context.arc(this.game.input.activePointer.x, this.game.input.activePointer.y,
+            this.LIGHT_RADIUS, 0, Math.PI*2);
+        this.shadowTexture.context.fill();
+
+        // This just tells the engine it should update the texture cache
+        this.shadowTexture.dirty = true;
 },
     updateTimer: function() {
         //console.log("Timer Running");
