@@ -40,6 +40,8 @@ gameObj.Preloader.prototype = {
         this.load.image('gameSnake', 'imgs/gameSnake.png');
         this.load.image('gameTorch', 'imgs/gameTorch.png');
         
+        this.load.spritesheet('gameCoin', 'imgs/gameCoin.png', 30, 30);
+        
         // End Game Assets
         this.load.image('winBg', 'imgs/winBg.png');
         this.load.image('winImg', 'imgs/winImg.png');

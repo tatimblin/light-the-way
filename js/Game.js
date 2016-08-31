@@ -24,12 +24,13 @@ gameObj.Game.prototype = {
 		//Add background image
 //		var myLogo = this.add.sprite(this.world.centerX, this.world.centerY, 'background');
 //		myLogo.anchor.setTo(0.5, 0.5);
-
+    
 		//Add list graphics
 		var background = this.add.sprite(0, 0, 'bg');
         
-        cell = this.add.sprite(-110, 0, 'sideWall');
-        cell = this.add.sprite(690, 0, 'sideWall');
+        
+        this.cell = this.add.tileSprite(-55, 0, 75, this.game.world.height,'wall');
+        this.cell = this.add.tileSprite(this.game.world.width - 20, 0, 75, this.game.world.height,'wall');
 
         
 		/*cell = this.add.sprite(300, 100, 'wall');
@@ -53,11 +54,11 @@ gameObj.Game.prototype = {
     
     
         // Holds wall coordinates (x 100)
-        var placex = [3, 4, 1, 2, 3, 3, 3, 4, 5, 1, 2, 3];
-        var placey = [1, 1, 2, 2, 2, 3, 5, 5, 5, 6, 7, 7];
+        var placex = [3, 4, 1, 2, 3, 3, 6, 7, 8, 8, 3, 4, 5, 1, 2, 3, 7, 5, 6, 7, 6, 7];
+        var placey = [1, 1, 2, 2, 2, 3, 3, 3, 3, 4, 5, 5, 5, 6, 7, 7, 8, 9, 9, 9, 10, 10];
         
-        for (var i = 0; i < 12; i++) {
-            cell = cells.create(placex[i] * 100, placey[i] * 100, 'wall');
+        for (var i = 0; i < placex.length; i++) {
+            cell = cells.create(placex[i] * 75, placey[i] * 75, 'wall');
             cell.name = 'cell' + i;
             cell.body.immovable = true;
             
@@ -69,12 +70,35 @@ gameObj.Game.prototype = {
         }
         
         
-        //Player
+// Snake and Character
         snake = this.add.sprite(500, 410, 'gameSnake');
+        snake.anchor.setTo(0.5, 0.5);
         
-        character = this.add.sprite(300, 610, 'gameCharacter');
+        character = this.add.sprite(this.world.centerX, 230, 'gameCharacter');
         this.physics.enable([character, cell], Phaser.Physics.ARCADE);
         character.anchor.setTo(0.5);
+        
+            this.physics.startSystem(Phaser.Physics.ARCADE);
+
+            this.physics.arcade.enable([snake, character]);
+
+            character.body.collideWorldBounds = true;
+            snake.body.collideWorldBounds = true;
+        
+            snake.body.onCollide = new Phaser.Signal();
+            snake.body.onCollide.add(this.loserFun, this);
+        
+// Coins
+        coin = this.add.sprite(150 + 35, 300 + 35, 'gameCoin');
+        coin.anchor.setTo(0.5, 0.5);
+        coin.frame = 3;
+        coin.animations.add('spinCoin', [0, 1, 2, 3], 4, true);
+        coin.animations.play('spinCoin');
+        
+        this.physics.enable([coin, character], Phaser.Physics.ARCADE);
+        
+        coin.body.onCollide = new Phaser.Signal();
+        coin.body.onCollide.add(this.collect, this);
         
         /*torch = this.add.sprite(400, 410, 'gameTorch');
         this.physics.enable(torch, Phaser.Physics.ARCADE);
@@ -144,8 +168,36 @@ gameObj.Game.prototype = {
     
     // Hide cursor only on this screen (flame is cursor)
 //    this.game.canvas.style.cursor = "none";
+    
+    console.log("Distance: " + this.physics.arcade.distanceToPointer(snake));
+    if (this.physics.arcade.distanceToPointer(snake) < 100) {
+        console.log("Stop it snake!");
+        snake.body.velocity.x = 0;
+    }
+    
+    // If snake is within range, move to character
+    if (this.physics.arcade.distanceBetween(snake, character) < 150) {
         
+        this.physics.arcade.moveToObject(snake, character, 200);
+    }
+        
+    if (this.physics.arcade.distanceBetween(snake, Phaser.Point)  < 400) {
+        console.log("The Distance isn't: " + this.physics.arcade.distanceBetween(snake, Phaser.Point));
+        snake.body.velocity.x = 0;
+        snake.body.velocity.y = 0;
+    }
+        
+    //Call function on snake bite
+    this.physics.arcade.collide(character, snake, this.loserFun, null, this);
+    snake.imovable = true;
+        
+    //Call function to collect coins
+    this.physics.arcade.collide(character, coin, this.collect, null, this);
+    coin.imovable = true;
+       
+    //Make walls imovable
     this.physics.arcade.collide(cells, character);
+    this.physics.arcade.collide(cells, snake);
     cells.imovable = true;
     
     /*
@@ -198,6 +250,16 @@ gameObj.Game.prototype = {
         // This just tells the engine it should update the texture cache
         this.shadowTexture.dirty = true;
 },
+    collect: function(character, coin) {
+        console.log("COINS!");
+        
+        // Find a random number between 15 and 20 to be added to the score.
+        var randomnumber = Math.floor(Math.random() * (20 - 15 + 1)) + 15;
+        currentScore = currentScore + randomnumber;
+        myPoints.setText(currentScore);
+        //remove sprite
+        coin.destroy();
+},
     updateTimer: function() {
         //console.log("Timer Running");
         timerSeconds ++;
@@ -215,7 +277,7 @@ gameObj.Game.prototype = {
         
         myTime.setText(displayMin + ":" + displaySec);
         if (displayMin == 0 && displaySec ==0) {
-            this.game.state.start('Loser');
+            this.gameOver();
         }
     },
     addPoint: function() {
@@ -223,13 +285,20 @@ gameObj.Game.prototype = {
         currentScore++
         myPoints.setText(currentScore);
     },
+    gameOver: function() {
+        if (currentScore > 13) {
+            this.game.state.start('Winner');
+        } else {
+            this.game.state.start('Loser');
+        }
+    },
 	winnerFun: function() {
-		this.game.state.start('Winner');
+        this.game.state.start('Winner');
 	},
 	loserFun: function() {
-		this.game.state.start('Loser');
+            console.log('YOU LOSE!');
+            this.game.state.start('Loser');
 	},
-    
 
 };
 
