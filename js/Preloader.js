@@ -37,7 +37,7 @@ gameObj.Preloader.prototype = {
         this.load.image('score', 'imgs/score.png');
         
         this.load.image('gameCharacter', 'imgs/gameCharacter.png');
-        this.load.image('gameSnake', 'imgs/gameSnake.png');
+        this.load.spritesheet('gameSnake', 'imgs/gameSnake.png', 49, 15);
         this.load.image('gameTorch', 'imgs/gameTorch.png');
         
         this.load.spritesheet('gameCoin', 'imgs/gameCoin.png', 30, 30);

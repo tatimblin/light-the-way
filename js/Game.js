@@ -7,6 +7,7 @@ gameObj.Game = function(game) {
     
     var myPoints;
     var currentScore;
+    var totalCoin; // Coin counter
     
     var torch;
     var character;
@@ -15,6 +16,7 @@ gameObj.Game = function(game) {
     var cell;
     var cells;
 
+    var snakes;
 };
 
 gameObj.Game.prototype = {
@@ -66,13 +68,18 @@ gameObj.Game.prototype = {
             this.physics.enable(vCount, Phaser.Physics.ARCADE);
             vCount.body.collideWorldBounds = true;
             vCount.body.immovable = true;*/
-            console.log("what is" + cell.name);
+            console.log("Loading Wall - " + cell.name);
         }
         
         
 // Snake and Character
         snake = this.add.sprite(500, 410, 'gameSnake');
+        snake2 = this.add.sprite(200, 700, 'gameSnake');
+        snake3 = this.add.sprite(600, 900, 'gameSnake');
+        
         snake.anchor.setTo(0.5, 0.5);
+        snake.frame = 1;
+        snake.animations.add('slither', [0, 1], 2, true);
         
         character = this.add.sprite(this.world.centerX, 230, 'gameCharacter');
         this.physics.enable([character, cell], Phaser.Physics.ARCADE);
@@ -88,7 +95,35 @@ gameObj.Game.prototype = {
             snake.body.onCollide = new Phaser.Signal();
             snake.body.onCollide.add(this.loserFun, this);
         
+        snake2.anchor.setTo(0.5, 0.5);
+        snake2.frame = 1;
+        snake2.animations.add('slither', [0, 1], 2, true);
+        
+            this.physics.startSystem(Phaser.Physics.ARCADE);
+
+            this.physics.arcade.enable([snake2, character]);
+
+            snake2.body.collideWorldBounds = true;
+        
+            snake2.body.onCollide = new Phaser.Signal();
+            snake2.body.onCollide.add(this.loserFun, this);
+        
+        snake3.anchor.setTo(0.5, 0.5);
+        snake3.frame = 1;
+        snake3.animations.add('slither', [0, 1], 2, true);
+        
+            this.physics.startSystem(Phaser.Physics.ARCADE);
+
+            this.physics.arcade.enable([snake3, character]);
+
+            snake3.body.collideWorldBounds = true;
+        
+            snake3.body.onCollide = new Phaser.Signal();
+            snake3.body.onCollide.add(this.loserFun, this);
+        
 // Coins
+        totalCoin = 0; // Coin Counter... See nextCoin()
+        
         coin = this.add.sprite(150 + 35, 300 + 35, 'gameCoin');
         coin.anchor.setTo(0.5, 0.5);
         coin.frame = 3;
@@ -169,27 +204,62 @@ gameObj.Game.prototype = {
     // Hide cursor only on this screen (flame is cursor)
 //    this.game.canvas.style.cursor = "none";
     
-    console.log("Distance: " + this.physics.arcade.distanceToPointer(snake));
-    if (this.physics.arcade.distanceToPointer(snake) < 100) {
-        console.log("Stop it snake!");
-        snake.body.velocity.x = 0;
-    }
+
     
     // If snake is within range, move to character
-    if (this.physics.arcade.distanceBetween(snake, character) < 150) {
+    if (this.physics.arcade.distanceBetween(snake, character)) {
         
-        this.physics.arcade.moveToObject(snake, character, 200);
+        this.physics.arcade.moveToObject(snake, character, 60); // the snakes speed
+        snake.rotation = this.physics.arcade.moveToXY(snake, character.x, character.y, 600, 600);
+        snake.animations.play('slither');
+    }
+    
+    if (this.physics.arcade.distanceBetween(snake2, character)) {
+    
+        this.physics.arcade.moveToObject(snake2, character, 60); // the snakes speed
+        snake2.rotation = this.physics.arcade.moveToXY(snake2, character.x, character.y, 600, 600);
+        snake2.animations.play('slither');
+    }
+    if (this.physics.arcade.distanceBetween(snake3, character)) {
+    
+        this.physics.arcade.moveToObject(snake3, character, 60); // the snakes speed
+        snake3.rotation = this.physics.arcade.moveToXY(snake3, character.x, character.y, 600, 600);
+        snake3.animations.play('slither');
     }
         
-    if (this.physics.arcade.distanceBetween(snake, Phaser.Point)  < 400) {
-        console.log("The Distance isn't: " + this.physics.arcade.distanceBetween(snake, Phaser.Point));
-        snake.body.velocity.x = 0;
-        snake.body.velocity.y = 0;
+    // Stops the snake from continuing if the player becomes out of range    
+    if (this.physics.arcade.distanceBetween(snake, character) > 200) {
+        snake.body.velocity.setTo(0, 0);
+        snake.animations.stop('slither');
+    }
+    if (this.physics.arcade.distanceBetween(snake2, character) > 200) {
+        snake2.body.velocity.setTo(0, 0);
+        snake2.animations.stop('slither');
+    }
+    if (this.physics.arcade.distanceBetween(snake3, character) > 200) {       
+        snake3.body.velocity.setTo(0, 0);
+        snake3.animations.stop('slither');
+    }
+    
+    // Stop the snake if the light (pointer) is in range 
+    //console.log("Distance: " + this.physics.arcade.distanceToPointer(snake));
+    if (this.physics.arcade.distanceToPointer(snake) < 150) {
+        snake.body.velocity.setTo(0, 0);
+    }
+    if (this.physics.arcade.distanceToPointer(snake2) < 150) {
+        snake2.body.velocity.setTo(0, 0);
+    }
+    if (this.physics.arcade.distanceToPointer(snake3) < 150) {
+        snake3.body.velocity.setTo(0, 0);
     }
         
     //Call function on snake bite
     this.physics.arcade.collide(character, snake, this.loserFun, null, this);
     snake.imovable = true;
+    this.physics.arcade.collide(character, snake2, this.loserFun, null, this);
+    snake2.imovable = true;
+    this.physics.arcade.collide(character, snake3, this.loserFun, null, this);
+    snake3.imovable = true;
         
     //Call function to collect coins
     this.physics.arcade.collide(character, coin, this.collect, null, this);
@@ -198,6 +268,8 @@ gameObj.Game.prototype = {
     //Make walls imovable
     this.physics.arcade.collide(cells, character);
     this.physics.arcade.collide(cells, snake);
+        this.physics.arcade.collide(cells, snake2);
+        this.physics.arcade.collide(cells, snake3);
     cells.imovable = true;
     
     /*
@@ -223,7 +295,7 @@ gameObj.Game.prototype = {
         else 
         {
             //  400 is the speed it will move towards the mouse
-            this.physics.arcade.moveToPointer(character, 200);
+            this.physics.arcade.moveToPointer(character, 250, Phaser.pointer, 0);
             character.rotation = this.physics.arcade.angleToPointer(character);
         }
     }
@@ -259,7 +331,34 @@ gameObj.Game.prototype = {
         myPoints.setText(currentScore);
         //remove sprite
         coin.destroy();
+        
+        this.nextCoin();
 },
+    nextCoin: function() {
+        // The values of future coin coordinates are stored below
+        coinCoordX = [5,  8, 6, 5, 2, 6, 10,  3];
+        coinCoordY = [6, 11, 8, 4, 9, 5,  6, 10];
+            // Place Coin, x75 for block, +35 for centering
+            coin = this.add.sprite( coinCoordX[totalCoin] * 75 + 35, coinCoordY[totalCoin] * 75 + 35, 'gameCoin');
+            coin.anchor.setTo(0.5, 0.5);
+            coin.frame = 3;
+            coin.animations.add('spinCoin', [0, 1, 2, 3], 4, true);
+            coin.animations.play('spinCoin');
+
+            this.physics.enable([coin, character], Phaser.Physics.ARCADE);
+
+            coin.body.onCollide = new Phaser.Signal();
+            coin.body.onCollide.add(this.collect, this);
+        
+            totalCoin = totalCoin + 1;
+            console.log(totalCoin + " Coins collected");
+            
+            
+        
+            if (totalCoin > coinCoordX.length) {
+                totalCoin = 0;
+            }
+    },
     updateTimer: function() {
         //console.log("Timer Running");
         timerSeconds ++;
@@ -286,7 +385,7 @@ gameObj.Game.prototype = {
         myPoints.setText(currentScore);
     },
     gameOver: function() {
-        if (currentScore > 13) {
+        if (currentScore > 200) {
             this.game.state.start('Winner');
         } else {
             this.game.state.start('Loser');
