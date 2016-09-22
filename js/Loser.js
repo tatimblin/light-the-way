@@ -2,7 +2,7 @@ gameObj.Loser = function(game) {};
 
 gameObj.Loser.prototype = {
 	create: function() {
-		console.log("State - Winner");
+		console.log("State - Loser");
 		//Add background image
 		var myLogo = this.add.sprite(this.world.centerX, this.world.centerY, 'loseBg');
 		myLogo.anchor.setTo(0.5, 0.5);
